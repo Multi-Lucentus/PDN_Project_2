@@ -8,7 +8,7 @@
 
 /* ----------- Project 2 - Problem 1 - Matrix Mult -----------
 
-    This file will multiply two matricies in a parallel manner
+    This file will multiply two matrices in a parallel manner
 
 */ // ------------------------------------------------------ //
 
@@ -105,7 +105,8 @@ int main(int argc, char* argv[])
     // Save time to file
     fprintf(outputTime, "%f", time_passed);
 
-    // TODO: save the output matrix to the output csv file
+    // Save the output matrix to the output csv file
+    writeMatrixtoCSV(outputFile, out_matrix, out_col, out_row);
 
     // Free matrix memory
     free(matrix1);
