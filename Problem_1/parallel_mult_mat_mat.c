@@ -4,14 +4,22 @@
 #include <omp.h>
 
 #define DEBUG 0
+#define BUF_SIZE 1024
 
 /* ----------- Project 2 - Problem 1 - Matrix Mult -----------
 
-    This file will multiply two matricies.
-    Complete the TODOs in order to complete this program.
-    Remember to make it parallelized!
+    This file will multiply two matricies in a parallel manner
+
 */ // ------------------------------------------------------ //
 
+// Prototype Functions
+void readCSVtoMatrix(FILE* fp, long int** in_matrix);
+void writeMatrixtoCSV(FILE* fp, long int** out_matrix, int n_col, int n_row);
+
+/**
+ * Main function
+ * Performs matrix multiplication in parallel using OpenMP
+ */
 int main(int argc, char* argv[])
 {
     // Catch console errors
@@ -44,17 +52,42 @@ int main(int argc, char* argv[])
     FILE* outputTime = fopen(argv[9], "w");
 
 
-    // TODO: malloc the two input matrices and the output matrix
-    // Please use long int as the variable type
+    // Create and malloc the two input matrices and the output matrix
+    long int** matrix1 = (long int**)malloc(n_col1 * sizeof(long int*));
+    for(int i = 0; i < n_row1; i++)
+        matrix1[i] = (long int*)malloc(n_row1 * sizeof(long int));
 
-    // TODO: Parse the input csv files and fill in the input matrices
+    long int** matrix2 = (long int**)malloc(n_col2 * sizeof(long int*));
+    for(int i = 0; i < n_row2; i++)
+        matrix2[i] = (long int*)malloc(n_row2 * sizeof(long int));
+
+    
+    // Determine the dims of the output matrix and initialize all cells to 0
+    int out_col = n_col2;
+    int out_row = n_row1;
+
+    long int** out_matrix = (long int**)malloc(out_col * sizeof(long int*));
+    for(int i = 0; i < out_row; i++) 
+        out_matrix[i] = (long int*)malloc(out_row * sizeof(long int));
+
+    for(int i = 0; i < out_col; i++) {
+        for(int j = 0; j < out_row; j++) {
+            out_matrix[i][j] = 0;
+        }
+    }
+
+
+    // Parse the input csv files and fill in the input matrices
+    readCSVtoMatrix(inputMatrix1, matrix1);
+    readCSVtoMatrix(inputMatrix2, matrix2);
 
 
     // We are interesting in timing the matrix-matrix multiplication only
     // Record the start time
     double start = omp_get_wtime();
     
-    // TODO: Parallelize the matrix-matrix multiplication
+    // Parallelize the matrix-matrix multiplication
+
 
     // Record the finish time        
     double end = omp_get_wtime();
