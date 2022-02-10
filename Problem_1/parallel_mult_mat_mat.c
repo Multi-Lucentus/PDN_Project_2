@@ -152,6 +152,22 @@ void readCSVtoMatrix(FILE* fp, long int** in_matrix) {
 }
 
 
-void writeMatrixtoCSV(FILE* fp, long int**out_matrix, int n_col, int n_row) {
-    
+/**
+ * Writes the given matrix, out_matrix, to the output file given by fp
+ */
+void writeMatrixtoCSV(FILE* fp, long int** out_matrix, int n_col, int n_row) {
+    char* output_buffer = (char*)malloc(BUF_SIZE * sizeof(char));
+
+    for(int i = 0; i < n_col; i++) {
+        for(int j = 0; j < n_row; j++) {
+            sprintf(output_buffer, "%d", out_matrix[i][j]);
+            fputs(output_buffer, fp);
+
+            fputs(",");
+        }
+        fputs("\n");
+    }
+
+    // Free buffers
+    free(output_buffer);
 }
