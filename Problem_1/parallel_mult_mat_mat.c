@@ -93,7 +93,11 @@ int main(int argc, char* argv[]) {
 #   pragma omp parallel for num_threads(thread_count)
     for(int i = 0; i < n_col2; i++) {
         // Multiply each column vector of matrix B with matrix A and save result to C
-        out_matrix[i] = multMatrixVector(matrix1, matrix2[i], n_row2);
+        // TODO: Need to check that just assigning the first element is correct
+        // out_matrix[i] = multMatrixVector(matrix1, matrix2[i], n_row2);
+    
+        // TODO: could have out_matrix[i] as a parameter to multMatrixVector to avoid pointer/memory worries
+        memcpy(out_matrix[i], multMatrixVector(matrix1, matrix2[i], n_row2));
     }
 
     // Record the finish time        
@@ -161,12 +165,12 @@ void writeMatrixtoCSV(FILE* fp, long int** out_matrix, int n_col, int n_row) {
 
     for(int i = 0; i < n_col; i++) {
         for(int j = 0; j < n_row; j++) {
-            sprintf(output_buffer, "%d", out_matrix[i][j]);
+            sprintf(output_buffer, "%ld", out_matrix[i][j]);
             fputs(output_buffer, fp);
 
-            fputs(",");
+            fputs(",", fp);
         }
-        fputs("\n");
+        fputs("\n", fp);
     }
 
     // Free buffers
@@ -189,8 +193,6 @@ long int* multMatrixVector(long int** matrix, long int* vector, int length) {
             res_vector[i] += matrix[i][j] * vector[j];
         }
     }
-
-    free(res_vector);
 
     return res_vector;
 }
