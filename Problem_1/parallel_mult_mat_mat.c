@@ -16,6 +16,9 @@
 void readCSVtoMatrix(FILE* fp, long int** in_matrix);
 void writeMatrixtoCSV(FILE* fp, long int** out_matrix, int n_col, int n_row);
 
+long int* multMatrixVector(long int** matrix, long int* vector, int length);
+
+
 /**
  * Main function
  * Performs matrix multiplication in parallel using OpenMP
@@ -86,12 +89,11 @@ int main(int argc, char* argv[]) {
     
 
     // Parallelize the matrix-matrix multiplication
-    // TODO: Look at i and j indices of output matrix
+    // Use the matrix*vector multiplication function created for project 1
 #   pragma omp parallel for num_threads(thread_count)
-    for(int i = 0; i < out_col; i++) {
-        for(int j = 0; j < out_row; j++) {
-            out_matrix[i][j] += matrix1[i][j] * matrix2[j][i];
-        }
+    for(int i = 0; i < n_col2; i++) {
+        // Multiply each column vector of matrix B with matrix A and save result to C
+        out_matrix[i] = multMatrixVector(matrix1, matrix2[i], n_row2);
     }
 
     // Record the finish time        
@@ -169,4 +171,26 @@ void writeMatrixtoCSV(FILE* fp, long int** out_matrix, int n_col, int n_row) {
 
     // Free buffers
     free(output_buffer);
+}
+
+
+/**
+ * Multiplies a given matrix with a vector and
+ * returns the resulting vector
+ */
+long int* multMatrixVector(long int** matrix, long int* vector, int length) {
+    // Create the vector that will be returned
+    long int* res_vector = (long int*)malloc(length * sizeof(long int));
+
+    // Initialize all values of vector to 0, then add each multiplication to the cell
+    for(int i = 0; i < length; i++) {
+        res_vector[i] = 0;
+        for(int j = 0; j < length; j++) {
+            res_vector[i] += matrix[i][j] * vector[j];
+        }
+    }
+
+    free(res_vector);
+
+    return res_vector;
 }
