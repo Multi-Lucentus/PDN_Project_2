@@ -87,7 +87,12 @@ int main(int argc, char* argv[])
     double start = omp_get_wtime();
     
     // Parallelize the matrix-matrix multiplication
-
+#   pragma omp parallel for num_threads(thread_count)
+    for(int i = 0; i < out_col; i++) {
+        for(int j = 0; j < out_row; j++) {
+            out_matrix[i][j] += matrix1[i][j] * matrix2[j][i];
+        }
+    }
 
     // Record the finish time        
     double end = omp_get_wtime();
