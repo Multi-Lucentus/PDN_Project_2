@@ -20,11 +20,9 @@ void writeMatrixtoCSV(FILE* fp, long int** out_matrix, int n_col, int n_row);
  * Main function
  * Performs matrix multiplication in parallel using OpenMP
  */
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     // Catch console errors
-    if (argc != 10)
-    {
+    if (argc != 10) {
         printf("USE LIKE THIS: parallel_mult_mat_mat   mat_1.csv n_row_1 n_col_1   mat_2.csv n_row_2 n_col_2   num_threads   results_matrix.csv   time.csv\n");
         return EXIT_FAILURE;
     }
