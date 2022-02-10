@@ -86,7 +86,9 @@ int main(int argc, char* argv[])
     // Record the start time
     double start = omp_get_wtime();
     
+
     // Parallelize the matrix-matrix multiplication
+    // TODO: Look at i and j indices of output matrix
 #   pragma omp parallel for num_threads(thread_count)
     for(int i = 0; i < out_col; i++) {
         for(int j = 0; j < out_row; j++) {
@@ -105,13 +107,51 @@ int main(int argc, char* argv[])
 
     // TODO: save the output matrix to the output csv file
 
+    // Free matrix memory
+    free(matrix1);
+    free(matrix2);
+    free(out_matrix);
+
     // Cleanup
     fclose(inputMatrix1);
     fclose(inputMatrix2);
     fclose(outputFile);
     fclose(outputTime);
-    // Remember to free your buffers!
 
     return 0;
 }
 
+
+/**
+ * Reads in a CSV file given by the file pointer fp, and then 
+ * reads in each cell of CSV into the corresponding matrix cell of
+ * in_matrix
+ */
+void readCSVtoMatrix(FILE* fp, long int** in_matrix) {
+    char* line_buffer = (char*)malloc(BUF_SIZE * sizeof(char));
+    char* token;
+
+    int i = 0, j = 0;
+
+    // Read each token and input into the matrix
+    while(fgets(line_buffer, BUF_SIZE, fp) != NULL) {
+        token = strtok(line_buffer, ",");
+        while(token != NULL) {
+            in_matrix[i][j] = strtol(token, NULL, 16);
+            j+= 1;
+
+            token = strtok(NULL, ",");
+        }
+
+        i += 1;
+        j = 0;
+    }
+
+    // Free buffers
+    free(line_buffer);
+}
+
+
+void writeMatrixtoCSV(FILE* fp, long int**out_matrix, int n_col, int n_row) {
+    
+}
