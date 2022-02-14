@@ -13,10 +13,10 @@
 */ // ------------------------------------------------------ //
 
 // Prototype Functions
-void readCSVtoMatrix(FILE* fp, long int** in_matrix);
-void writeMatrixtoCSV(FILE* fp, long int** out_matrix, int n_col, int n_row);
+void readCSVtoMatrix(FILE* fp, long int* in_matrix, int width, int height);
+void writeMatrixtoCSV(FILE* fp, long int* out_matrix, int n_col, int n_row);
 
-long int* multMatrixVector(long int** matrix, long int* vector, int length);
+long int* multMatrixVector(long int* matrix, long int* vector, int length);
 
 
 /**
@@ -54,34 +54,27 @@ int main(int argc, char* argv[]) {
 
 
     // Create and malloc the two input matrices and the output matrix
-    long int** matrix1 = (long int**)malloc(n_col1 * sizeof(long int*));
-    for(int i = 0; i < n_row1; i++)
-        matrix1[i] = (long int*)malloc(n_row1 * sizeof(long int));
+    long int* matrix1 = (long int*)malloc((n_col1 * n_row1) * sizeof(long int));
 
-    long int** matrix2 = (long int**)malloc(n_col2 * sizeof(long int*));
-    for(int i = 0; i < n_row2; i++)
-        matrix2[i] = (long int*)malloc(n_row2 * sizeof(long int));
-
-    
+    long int* matrix2 = (long int*)malloc((n_col2 * n_row2) * sizeof(long int));
+ 
     // Determine the dims of the output matrix and initialize all cells to 0
     int out_col = n_col2;
     int out_row = n_row1;
 
-    long int** out_matrix = (long int**)malloc(out_col * sizeof(long int*));
-    for(int i = 0; i < out_row; i++) 
-        out_matrix[i] = (long int*)malloc(out_row * sizeof(long int));
+    long int* out_matrix = (long int*)malloc((out_col* out_row) * sizeof(long int));
 
-    for(int i = 0; i < out_col; i++) {
-        for(int j = 0; j < out_row; j++) {
-            out_matrix[i][j] = 0;
+    for(int row = 0; row < out_row; row++) {
+        for(int col = 0; col < out_col; col++) {
+            out_matrix[row * out_col + col] = 0;
         }
     }
 
-
     // Parse the input csv files and fill in the input matrices
-    readCSVtoMatrix(inputMatrix1, matrix1);
-    readCSVtoMatrix(inputMatrix2, matrix2);
+    readCSVtoMatrix(inputMatrix1, matrix1, n_col1, n_row1);
 
+
+    readCSVtoMatrix(inputMatrix2, matrix2, n_col2, n_row2);
 
     // We are interesting in timing the matrix-matrix multiplication only
     // Record the start time
@@ -95,9 +88,7 @@ int main(int argc, char* argv[]) {
         // Multiply each column vector of matrix B with matrix A and save result to C
         // TODO: Need to check that just assigning the first element is correct
         // out_matrix[i] = multMatrixVector(matrix1, matrix2[i], n_row2);
-    
-        // TODO: could have out_matrix[i] as a parameter to multMatrixVector to avoid pointer/memory worries
-        memcpy(out_matrix[i], multMatrixVector(matrix1, matrix2[i], n_row2));
+        // memcpy(out_matrix[i], multMatrixVector(matrix1, matrix2[i], n_row2));
     }
 
     // Record the finish time        
@@ -132,24 +123,26 @@ int main(int argc, char* argv[]) {
  * reads in each cell of CSV into the corresponding matrix cell of
  * in_matrix
  */
-void readCSVtoMatrix(FILE* fp, long int** in_matrix) {
+void readCSVtoMatrix(FILE* fp, long int* in_matrix, int width, int height) {
     char* line_buffer = (char*)malloc(BUF_SIZE * sizeof(char));
     char* token;
 
-    int i = 0, j = 0;
+    int row = 0, col = 0;
 
     // Read each token and input into the matrix
     while(fgets(line_buffer, BUF_SIZE, fp) != NULL) {
         token = strtok(line_buffer, ",");
+
         while(token != NULL) {
-            in_matrix[i][j] = strtol(token, NULL, 16);
-            j+= 1;
+            in_matrix[row * width + col] = strtol(token, NULL, 10);
+
+            col += 1;
 
             token = strtok(NULL, ",");
         }
 
-        i += 1;
-        j = 0;
+        row += 1;
+        col = 0;
     }
 
     // Free buffers
@@ -160,12 +153,12 @@ void readCSVtoMatrix(FILE* fp, long int** in_matrix) {
 /**
  * Writes the given matrix, out_matrix, to the output file given by fp
  */
-void writeMatrixtoCSV(FILE* fp, long int** out_matrix, int n_col, int n_row) {
+void writeMatrixtoCSV(FILE* fp, long int* out_matrix, int n_col, int n_row) {
     char* output_buffer = (char*)malloc(BUF_SIZE * sizeof(char));
 
     for(int i = 0; i < n_col; i++) {
         for(int j = 0; j < n_row; j++) {
-            sprintf(output_buffer, "%ld", out_matrix[i][j]);
+            sprintf(output_buffer, "%ld", out_matrix[i * n_col + j]);
             fputs(output_buffer, fp);
 
             fputs(",", fp);
@@ -182,7 +175,7 @@ void writeMatrixtoCSV(FILE* fp, long int** out_matrix, int n_col, int n_row) {
  * Multiplies a given matrix with a vector and
  * returns the resulting vector
  */
-long int* multMatrixVector(long int** matrix, long int* vector, int length) {
+long int* multMatrixVector(long int* matrix, long int* vector, int length) {
     // Create the vector that will be returned
     long int* res_vector = (long int*)malloc(length * sizeof(long int));
 
@@ -190,7 +183,7 @@ long int* multMatrixVector(long int** matrix, long int* vector, int length) {
     for(int i = 0; i < length; i++) {
         res_vector[i] = 0;
         for(int j = 0; j < length; j++) {
-            res_vector[i] += matrix[i][j] * vector[j];
+            res_vector[i] += matrix[i * j] * vector[j];
         }
     }
 
