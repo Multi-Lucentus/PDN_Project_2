@@ -58,11 +58,12 @@ int main(int argc, char* argv[]) {
 
     long int* matrix2 = (long int*)malloc((n_col2 * n_row2) * sizeof(long int));
  
+
     // Determine the dims of the output matrix and initialize all cells to 0
     int out_col = n_col2;
     int out_row = n_row1;
 
-    long int* out_matrix = (long int*)malloc((out_col* out_row) * sizeof(long int));
+    long int* out_matrix = (long int*)malloc((out_col * out_row) * sizeof(long int));
 
     for(int row = 0; row < out_row; row++) {
         for(int col = 0; col < out_col; col++) {
@@ -72,7 +73,26 @@ int main(int argc, char* argv[]) {
 
     // Parse the input csv files and fill in the input matrices
     readCSVtoMatrix(inputMatrix1, matrix1, n_col1, n_row1);
+
+    // TESTING: output matrix
+    for(int row = 0; row < n_row1; row++) {
+        for(int col = 0; col < n_col1; col++) {
+            printf("%ld ", matrix1[row * n_col1 + col]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+
     readCSVtoMatrix(inputMatrix2, matrix2, n_col2, n_row2);
+
+    // TESTING: output matrix
+    for(int row = 0; row < n_row2; row++) {
+        for(int col = 0; col < n_col2; col++) {
+            printf("%ld ", matrix2[row * n_col2 + col]);
+        }
+        printf("\n");
+    }
+    printf("\n");
 
     // We are interesting in timing the matrix-matrix multiplication only
     // Record the start time
@@ -90,7 +110,6 @@ int main(int argc, char* argv[]) {
         
         for(int j = 0; j < n_row2; j++) {
             vector[j] = matrix2[j * n_col2 + i];
-            printf("%ld\n", vector[j]);
         }
 
         // Multiply the vector with Matrix A
@@ -98,6 +117,14 @@ int main(int argc, char* argv[]) {
 
         // Free vectors
         free(vector);
+    }
+
+    // TESTING: output matrix
+    for(int row = 0; row < out_row; row++) {
+        for(int col = 0; col < out_col; col++) {
+            printf("%ld ", out_matrix[row * out_col + col]);
+        }
+        printf("\n");
     }
 
     // Record the finish time        
