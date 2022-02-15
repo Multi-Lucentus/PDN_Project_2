@@ -4,13 +4,13 @@
 #SBATCH --exclusive
 #SBATCH --ntasks=8
 #SBATCH --ntasks-per-node=8
-#SBATCH --chdir=/home/oucspdn000/Project_2/Problem_1
-#SBATCH --output=/home/oucspdn000/Project_2/Problem_1/Problem1_%J_stdout.txt
-#SBATCH --error=/home/oucspdn000/Project_2/Problem_1/Problem1_%J_stderr.txt
+#SBATCH --chdir=/home/oucspdn007/Project_2/Problem_1
+#SBATCH --output=/home/oucspdn007/Project_2/Problem_1/Problem1_%J_stdout.txt
+#SBATCH --error=/home/oucspdn007/Project_2/Problem_1/Problem1_%J_stderr.txt
 # Adjust time according to your needs and queue limit 
 #SBATCH --time=00:15:00
 #SBATCH --job-name=Project2_Problem1
-#SBATCH --mail-user=youremail@ou.edu
+#SBATCH --mail-user=parker.a.brandt-1@ou.edu@ou.edu
 #SBATCH --mail-type=ALL
 
 #################################################
