@@ -65,7 +65,6 @@ int main(int argc, char* argv[]) {
 #   pragma omp parallel for num_threads(thread_count) reduction (max : max_value)
     for(int row = 0; row < n_row1; row++) {
         for(int col = 0; col < n_col2; col++) {
-            // long int value = out_matrix[row * out_col + col];
             long int value = dotProduct(matrix1, matrix2, n_col1, n_col2, col, row);
 
 #           pragma omp critical
@@ -73,6 +72,9 @@ int main(int argc, char* argv[]) {
                 max_value = value;
         }
     }
+
+    // Write max value to CSV file
+    fprintf(outputFile, "%ld", max_value);
 
     // Free matrix memory
     free(matrix1);
