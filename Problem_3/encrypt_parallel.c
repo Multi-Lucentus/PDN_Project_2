@@ -72,6 +72,9 @@ int main (int argc, char *argv[])
 
 
     // ----> Begin Encryption <----- //
+    // Record the start time
+    double start = omp_get_wtime();
+
     // Encrypt the buffer into the encrypted_buffer
     // Distribute plaintext among threads
 #   pragma omp parallel for num_threads(thread_count)
@@ -80,12 +83,19 @@ int main (int argc, char *argv[])
     }
     if (DEBUG) printf("Values encrypted! \n");
 
+    // Record the finish time        
+    double end = omp_get_wtime();
+    
+    // Time calculation (in seconds)
+    double time_passed = end - start;
+
     // Print to the output file
     for (int i = 0; i<lSize; i++) {
         fprintf(outputFile, "%c", encrypted_buffer[i]);
     }
 
-
+    // Write the time to a file
+    fprintf(outputTime, "%f", time_passed)
 
     // Cleanup
     fclose(inputFile);
