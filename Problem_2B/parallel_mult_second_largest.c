@@ -72,6 +72,7 @@ int main(int argc, char* argv[]) {
             if(value > largest) {
                 second_largest = largest;
                 largest = value;
+#           pragma omp critical
             } else if(value > second_largest) {
                 second_largest = value;
             }
