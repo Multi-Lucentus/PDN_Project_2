@@ -176,5 +176,11 @@ void writeMatrixtoCSV(FILE* fp, long int* out_matrix, int n_col, int n_row) {
 }
 
 long int dotProduct(long int* matrix1, long int* matrix2, int width, int col, int row) {
-    return 0;
+    int result = 0;
+
+    for(int i = 0; i < width; i++) {
+        result += matrix1[row * width + i] * matrix2[i * width + col];
+    }
+
+    return result;
 }
