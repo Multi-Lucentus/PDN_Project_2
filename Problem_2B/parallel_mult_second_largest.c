@@ -24,7 +24,7 @@ long int dotProduct(long int* matrix1, long int* matrix2, int width1, int width2
 int main(int argc, char* argv[]) {
     // Catch console errors
     if (argc != 9) {
-        printf("USE LIKE THIS: parallel_mult_mat_mat   mat_1.csv n_row_1 n_col_1   mat_2.csv n_row_2 n_col_2   num_threads   max_value.csv\n");
+        printf("USE LIKE THIS: parallel_mult_mat_mat   mat_1.csv n_row_1 n_col_1   mat_2.csv n_row_2 n_col_2   num_threads   second_largest.csv\n");
         return EXIT_FAILURE;
     }
 
@@ -62,24 +62,24 @@ int main(int argc, char* argv[]) {
 
 
     long int largest = 0;
-    long int second_larget = 0;
-#   pragma omp parallel for num_threads(thread_count) reduction (max : max_value)
+    long int second_largest = 0;
+#   pragma omp parallel for num_threads(thread_count) reduction (max : largest)
     for(int row = 0; row < n_row1; row++) {
         for(int col = 0; col < n_col2; col++) {
             long int value = dotProduct(matrix1, matrix2, n_col1, n_col2, col, row);
 
 #           pragma omp critical
             if(value > largest) {
-                second_larget = largest;
+                second_largest = largest;
                 largest = value;
-            } else if(x > second_larget) {
-                second_larget = value;
+            } else if(value > second_largest) {
+                second_largest = value;
             }
         }
     }
 
     // Write max value to CSV file
-    fprintf(outputFile, "%ld", max_value);
+    fprintf(outputFile, "%ld", second_largest);
 
     // Free matrix memory
     free(matrix1);
