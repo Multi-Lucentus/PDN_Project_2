@@ -16,7 +16,7 @@ int main (int argc, char *argv[])
 {
     //  Catch console errors
     //  Make sure you include the # of threads and your output time file.
-    if (argc != 5) {
+    if (argc != 6) {
         printf("USE LIKE THIS: encrypt_parallel key input_text.txt num_threads output_text.txt time.txt\n");
         return EXIT_FAILURE;
     }
@@ -29,7 +29,7 @@ int main (int argc, char *argv[])
     FILE* inputFile = fopen(argv[2], "r");
 
     // Open the output, encrypted text file
-    FILE* outputFile = fopen(argv[3], "w");
+    FILE* outputFile = fopen(argv[4], "w");
 
     // Get the number of threads
     int thread_count = strtol(argv[3], NULL, 10);
@@ -95,7 +95,7 @@ int main (int argc, char *argv[])
     }
 
     // Write the time to a file
-    fprintf(outputTime, "%f", time_passed)
+    fprintf(outputTime, "%f", time_passed);
 
     // Cleanup
     fclose(inputFile);
