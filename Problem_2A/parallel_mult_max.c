@@ -17,6 +17,7 @@ void readCSVtoMatrix(FILE* fp, long int* in_matrix, int width, int height);
 void writeMatrixtoCSV(FILE* fp, long int* out_matrix, int n_col, int n_row);
 
 void multMatrixVector(long int* res_matrix, long int* matrix, long int* vector, int col_num, int height, int width, int mat_width);
+long int dotProduct(long int* matrix1, long int* matrix2, int width, int col, int row);
 
 
 /**
@@ -25,8 +26,8 @@ void multMatrixVector(long int* res_matrix, long int* matrix, long int* vector, 
  */
 int main(int argc, char* argv[]) {
     // Catch console errors
-    if (argc != 10) {
-        printf("USE LIKE THIS: parallel_mult_mat_mat   mat_1.csv n_row_1 n_col_1   mat_2.csv n_row_2 n_col_2   num_threads   results_matrix.csv   time.csv\n");
+    if (argc != 9) {
+        printf("USE LIKE THIS: parallel_mult_mat_mat   mat_1.csv n_row_1 n_col_1   mat_2.csv n_row_2 n_col_2   num_threads   max_value.csv\n");
         return EXIT_FAILURE;
     }
 
@@ -50,7 +51,6 @@ int main(int argc, char* argv[]) {
 
     // Get output files
     FILE* outputFile = fopen(argv[8], "w");
-    FILE* outputTime = fopen(argv[9], "w");
 
 
     // Create and malloc the two input matrices and the output matrix
@@ -76,12 +76,6 @@ int main(int argc, char* argv[]) {
 
     readCSVtoMatrix(inputMatrix2, matrix2, n_col2, n_row2);
 
-
-    // We are interesting in timing the matrix-matrix multiplication only
-    // Record the start time
-    double start = omp_get_wtime();
-    
-
     // Parallelize the matrix-matrix multiplication
     // Use the matrix*vector multiplication function created for project 1
 #   pragma omp parallel for num_threads(thread_count)
@@ -102,19 +96,23 @@ int main(int argc, char* argv[]) {
         free(vector);
     }
 
-#   pragma omp parallel num_threads(thread_count) reduction (max : ) 
+    long int max_value = 0;
+#   pragma omp parallel for num_threads(thread_count) reduction (max : max_value)
+    for(int row = 0; row < out_row; row++) {
+        for(int col = 0; col < out_col; col++) {
+            long int value = out_matrix[row * out_col + col];
 
-    // Record the finish time        
-    double end = omp_get_wtime();
-    
-    // Time calculation (in seconds)
-    double time_passed = end - start;
+#           pragma omp critical
+            if(value > max_value)
+                max_value = value;
+        }
+    }
 
     // Save time to file
     fprintf(outputTime, "%f", time_passed);
 
-    // Save the output matrix to the output csv file
-    writeMatrixtoCSV(outputFile, out_matrix, out_col, out_row);
+    // Save the output maximum to the file
+    fprintf(outputFile, "%ld", max_value);
 
     // Free matrix memory
     free(matrix1);
@@ -213,4 +211,8 @@ void multMatrixVector(long int* res_matrix, long int* matrix, long int* vector, 
             res_matrix[row * width + col_num] += matrix[row * mat_width + col] * vector[col];
         }
     }
+}
+
+long int dotProduct(long int* matrix1, long int* matrix2, int width, int col, int row) {
+    return 0;
 }
