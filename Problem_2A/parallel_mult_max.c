@@ -14,8 +14,6 @@
 
 // Prototype Functions
 void readCSVtoMatrix(FILE* fp, long int* in_matrix, int width, int height);
-void writeMatrixtoCSV(FILE* fp, long int* out_matrix, int n_col, int n_row);
-
 long int dotProduct(long int* matrix1, long int* matrix2, int width1, int width2, int col, int row);
 
 
@@ -125,6 +123,17 @@ void readCSVtoMatrix(FILE* fp, long int* in_matrix, int width, int height) {
     free(line_buffer);
 }
 
+
+/*
+ * Calculates the dot product of two matrices given a specific column and row to calculate for
+ *
+ * Parameters:  matrix1 is the first matrix in the multiplication
+ *              matrix2 is the seconed matrix in the multiplication
+ *              width1 is the width of the first matrix
+ *              width2 is the width of the second matrix
+ *              col is the column to compute the dot product for in the resulting matrix
+ *              row is the row to compute the dot product for in the resulting matrix
+ */
 long int dotProduct(long int* matrix1, long int* matrix2, int width1, int width2, int col, int row) {
     int result = 0;
 
