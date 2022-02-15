@@ -16,7 +16,6 @@
 void readCSVtoMatrix(FILE* fp, long int* in_matrix, int width, int height);
 void writeMatrixtoCSV(FILE* fp, long int* out_matrix, int n_col, int n_row);
 
-void multMatrixVector(long int* res_matrix, long int* matrix, long int* vector, int col_num, int height, int width, int mat_width);
 long int dotProduct(long int* matrix1, long int* matrix2, int width, int col, int row);
 
 
@@ -57,27 +56,13 @@ int main(int argc, char* argv[]) {
     long int* matrix1 = (long int*)malloc((n_col1 * n_row1) * sizeof(long int));
 
     long int* matrix2 = (long int*)malloc((n_col2 * n_row2) * sizeof(long int));
- 
 
-    // Determine the dims of the output matrix and initialize all cells to 0
-    int out_col = n_col2;
-    int out_row = n_row1;
-
-    long int* out_matrix = (long int*)malloc((out_col * out_row) * sizeof(long int));
-
-    for(int row = 0; row < out_row; row++) {
-        for(int col = 0; col < out_col; col++) {
-            out_matrix[row * out_col + col] = 0;
-        }
-    }
 
     // Parse the input csv files and fill in the input matrices
     readCSVtoMatrix(inputMatrix1, matrix1, n_col1, n_row1);
-
     readCSVtoMatrix(inputMatrix2, matrix2, n_col2, n_row2);
 
-    // Parallelize the matrix-matrix multiplication
-    // Use the matrix*vector multiplication function created for project 1
+    // Parallelize the max comparison
 #   pragma omp parallel for num_threads(thread_count)
     for(int i = 0; i < n_col2; i++) {
         // Multiply each column vector of matrix B with matrix A and save result to C
@@ -100,7 +85,8 @@ int main(int argc, char* argv[]) {
 #   pragma omp parallel for num_threads(thread_count) reduction (max : max_value)
     for(int row = 0; row < out_row; row++) {
         for(int col = 0; col < out_col; col++) {
-            long int value = out_matrix[row * out_col + col];
+            // long int value = out_matrix[row * out_col + col];
+            long int value = dotProduct(matrix1, matrix2, n_col1, col, row);
 
 #           pragma omp critical
             if(value > max_value)
@@ -117,13 +103,11 @@ int main(int argc, char* argv[]) {
     // Free matrix memory
     free(matrix1);
     free(matrix2);
-    free(out_matrix);
 
     // Cleanup
     fclose(inputMatrix1);
     fclose(inputMatrix2);
     fclose(outputFile);
-    fclose(outputTime);
 
     return 0;
 }
@@ -189,28 +173,6 @@ void writeMatrixtoCSV(FILE* fp, long int* out_matrix, int n_col, int n_row) {
 
     // Free buffers
     free(output_buffer);
-}
-
-
-/**
- * Multiplies a given matrix with a vector and
- * returns the resulting vector
- *
- * Parameters:  res_matrix is the resulting matrix of matrix being multiplied with vector
- *              matrix is matrix A which will be multiplied with the column vector
- *              vector is the column vector of matrix B that will be multiplied with matrix
- *              col_num is the number of the column vector that is being multiplied
- *              height is the height of the resulting matrix (equivalent to the height of matrix A)
- *              width is the width of the resulting matrix (equivalent to the width of matrix B)
- *              mat_width is the width of matrix A
- */
-void multMatrixVector(long int* res_matrix, long int* matrix, long int* vector, int col_num, int height, int width, int mat_width) {
-    
-    for(int row = 0; row < height; row++) {
-        for(int col = 0; col < mat_width; col++) {
-            res_matrix[row * width + col_num] += matrix[row * mat_width + col] * vector[col];
-        }
-    }
 }
 
 long int dotProduct(long int* matrix1, long int* matrix2, int width, int col, int row) {
