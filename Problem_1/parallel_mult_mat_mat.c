@@ -16,7 +16,7 @@
 void readCSVtoMatrix(FILE* fp, long int* in_matrix, int width, int height);
 void writeMatrixtoCSV(FILE* fp, long int* out_matrix, int n_col, int n_row);
 
-long int* multMatrixVector(long int* matrix, long int* vector, int length);
+void multMatrixVector(long int* res_matrix, long int* matrix, long int* vector, int col_num, int height, int width, int mat_width);
 
 
 /**
@@ -72,8 +72,6 @@ int main(int argc, char* argv[]) {
 
     // Parse the input csv files and fill in the input matrices
     readCSVtoMatrix(inputMatrix1, matrix1, n_col1, n_row1);
-
-
     readCSVtoMatrix(inputMatrix2, matrix2, n_col2, n_row2);
 
     // We are interesting in timing the matrix-matrix multiplication only
@@ -86,9 +84,20 @@ int main(int argc, char* argv[]) {
 #   pragma omp parallel for num_threads(thread_count)
     for(int i = 0; i < n_col2; i++) {
         // Multiply each column vector of matrix B with matrix A and save result to C
-        // TODO: Need to check that just assigning the first element is correct
-        // out_matrix[i] = multMatrixVector(matrix1, matrix2[i], n_row2);
-        // memcpy(out_matrix[i], multMatrixVector(matrix1, matrix2[i], n_row2));
+
+        // Create a vector to store a column vector of matrix B in
+        long int* vector = (long int*)malloc(n_row2 * sizeof(long int));
+        
+        for(int j = 0; j < n_row2; j++) {
+            vector[j] = matrix2[j * n_col2 + i];
+            printf("%ld\n", vector[j]);
+        }
+
+        // Multiply the vector with Matrix A
+        multMatrixVector(out_matrix, matrix1, vector, i, n_row1, n_col2, n_col1);
+
+        // Free vectors
+        free(vector);
     }
 
     // Record the finish time        
@@ -152,6 +161,8 @@ void readCSVtoMatrix(FILE* fp, long int* in_matrix, int width, int height) {
 
 /**
  * Writes the given matrix, out_matrix, to the output file given by fp
+ *
+ * Parameters:  
  */
 void writeMatrixtoCSV(FILE* fp, long int* out_matrix, int n_col, int n_row) {
     char* output_buffer = (char*)malloc(BUF_SIZE * sizeof(char));
@@ -174,18 +185,20 @@ void writeMatrixtoCSV(FILE* fp, long int* out_matrix, int n_col, int n_row) {
 /**
  * Multiplies a given matrix with a vector and
  * returns the resulting vector
+ *
+ * Parameters:  res_matrix is the resulting matrix of matrix being multiplied with vector
+ *              matrix is matrix A which will be multiplied with the column vector
+ *              vector is the column vector of matrix B that will be multiplied with matrix
+ *              col_num is the number of the column vector that is being multiplied
+ *              height is the height of the resulting matrix (equivalent to the height of matrix A)
+ *              width is the width of the resulting matrix (equivalent to the width of matrix B)
+ *              mat_width is the width of matrix A
  */
-long int* multMatrixVector(long int* matrix, long int* vector, int length) {
-    // Create the vector that will be returned
-    long int* res_vector = (long int*)malloc(length * sizeof(long int));
-
-    // Initialize all values of vector to 0, then add each multiplication to the cell
-    for(int i = 0; i < length; i++) {
-        res_vector[i] = 0;
-        for(int j = 0; j < length; j++) {
-            res_vector[i] += matrix[i * j] * vector[j];
+void multMatrixVector(long int* res_matrix, long int* matrix, long int* vector, int col_num, int height, int width, int mat_width) {
+    
+    for(int row = 0; row < height; row++) {
+        for(int col = 0; col < mat_width; col++) {
+            res_matrix[row * width + col_num] += matrix[row * mat_width + col] * vector[col];
         }
     }
-
-    return res_vector;
 }
