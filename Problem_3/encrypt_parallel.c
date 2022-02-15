@@ -18,7 +18,7 @@ int main (int argc, char *argv[])
     //  Catch console errors
     //  Make sure you include the # of threads and your output time file.
     if (argc != 5) {
-        printf("USE LIKE THIS: encrypt_serial key input_text.txt output_text.txt num_threads\n");
+        printf("USE LIKE THIS: encrypt_parallel key input_text.txt output_text.txt num_threads\n");
         return EXIT_FAILURE;
     }
 
@@ -33,7 +33,7 @@ int main (int argc, char *argv[])
     FILE* outputFile = fopen(argv[3], "w");
 
     // Get the number of threads
-    int thread_count = strtol(arg[4], NULL, 10);
+    int thread_count = strtol(argv[4], NULL, 10);
 
     // Allocate and open a buffer to read in the input
     fseek(inputFile, 0L, SEEK_END);
@@ -74,8 +74,7 @@ int main (int argc, char *argv[])
     // TODO: Distribute plaintext among threads
 #   pragma omp parallel for num_threads(thread_count)
     for (int i = 0; i<lSize; i++) {
-        // encrypted_buffer[i] = ??? ;  // TODO: Encrypt a character from the input buffer.
-        encrypted_buffer[i] = buffer[i] + key;
+        encrypted_buffer[i] = (unsigned char)(buffer[i] + key);
     }
     if (DEBUG) printf("Values encrypted! \n");
 
