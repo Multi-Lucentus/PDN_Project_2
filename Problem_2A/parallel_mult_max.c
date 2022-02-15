@@ -16,7 +16,7 @@
 void readCSVtoMatrix(FILE* fp, long int* in_matrix, int width, int height);
 void writeMatrixtoCSV(FILE* fp, long int* out_matrix, int n_col, int n_row);
 
-long int dotProduct(long int* matrix1, long int* matrix2, int width, int col, int row);
+long int dotProduct(long int* matrix1, long int* matrix2, int width1, int width2, int col, int row);
 
 
 /**
@@ -62,43 +62,19 @@ int main(int argc, char* argv[]) {
     readCSVtoMatrix(inputMatrix1, matrix1, n_col1, n_row1);
     readCSVtoMatrix(inputMatrix2, matrix2, n_col2, n_row2);
 
-    // Parallelize the max comparison
-#   pragma omp parallel for num_threads(thread_count)
-    for(int i = 0; i < n_col2; i++) {
-        // Multiply each column vector of matrix B with matrix A and save result to C
-
-        // Create a vector to store a column vector of matrix B in
-        long int* vector = (long int*)malloc(n_row2 * sizeof(long int));
-        
-        for(int j = 0; j < n_row2; j++) {
-            vector[j] = matrix2[j * n_col2 + i];
-        }
-
-        // Multiply the vector with Matrix A
-        multMatrixVector(out_matrix, matrix1, vector, i, n_row1, n_col2, n_col1);
-
-        // Free vectors
-        free(vector);
-    }
 
     long int max_value = 0;
 #   pragma omp parallel for num_threads(thread_count) reduction (max : max_value)
-    for(int row = 0; row < out_row; row++) {
-        for(int col = 0; col < out_col; col++) {
+    for(int row = 0; row < n_row1; row++) {
+        for(int col = 0; col < n_col2; col++) {
             // long int value = out_matrix[row * out_col + col];
-            long int value = dotProduct(matrix1, matrix2, n_col1, col, row);
+            long int value = dotProduct(matrix1, matrix2, n_col1, n_col2, col, row);
 
 #           pragma omp critical
             if(value > max_value)
                 max_value = value;
         }
     }
-
-    // Save time to file
-    fprintf(outputTime, "%f", time_passed);
-
-    // Save the output maximum to the file
-    fprintf(outputFile, "%ld", max_value);
 
     // Free matrix memory
     free(matrix1);
@@ -149,37 +125,11 @@ void readCSVtoMatrix(FILE* fp, long int* in_matrix, int width, int height) {
     free(line_buffer);
 }
 
-
-/**
- * Writes the given matrix, out_matrix, to the output file given by fp
- *
- * Parameters:  fp is the file pointer to the output CSV file to write the matrix to
- *              out_matrix is the matrix that will be written to the CSV file
- *              n_col is the number of columns the output matrix contains
- *              n_row is the number of rows the output matrix contains
- */
-void writeMatrixtoCSV(FILE* fp, long int* out_matrix, int n_col, int n_row) {
-    char* output_buffer = (char*)malloc(BUF_SIZE * sizeof(char));
-
-    for(int i = 0; i < n_row; i++) {
-        for(int j = 0; j < n_col; j++) {
-            sprintf(output_buffer, "%ld", out_matrix[i * n_col + j]);
-            fputs(output_buffer, fp);
-
-            fputs(",", fp);
-        }
-        fputs("\n", fp);
-    }
-
-    // Free buffers
-    free(output_buffer);
-}
-
-long int dotProduct(long int* matrix1, long int* matrix2, int width, int col, int row) {
+long int dotProduct(long int* matrix1, long int* matrix2, int width1, int width2, int col, int row) {
     int result = 0;
 
-    for(int i = 0; i < width; i++) {
-        result += matrix1[row * width + i] * matrix2[i * width + col];
+    for(int i = 0; i < width1; i++) {
+        result += matrix1[row * width1 + i] * matrix2[i * width2 + col];
     }
 
     return result;
