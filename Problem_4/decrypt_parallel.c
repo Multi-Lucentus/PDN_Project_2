@@ -7,10 +7,7 @@
 #define DEBUG 0
 
 /* ------------ Project 2 - Problem 3 - Encryption ------------
-    This file encrypts a text file serially.
-    Most of the work is done for you.
-    Just find what in the program can be parallelized and how to encrypt a character.
-    Don't forget to log the output time of your modified code!
+    
 */ // ------------------------------------------------------ //
 
 int main (int argc, char *argv[])
@@ -18,7 +15,7 @@ int main (int argc, char *argv[])
     //  Catch console errors
     //  Make sure you include the # of threads and your output time file.
     if (argc != 5) {
-        printf("USE LIKE THIS: encrypt_parallel key input_text.txt output_text.txt num_threads\n");
+        printf("USE LIKE THIS: decrypt_parallel input_text.txt num_threads key.txt time.txt\n");
         return EXIT_FAILURE;
     }
 
@@ -101,6 +98,7 @@ int main (int argc, char *argv[])
     free(buffer);
 
     return 0;
+    
 } // End main //
 
 /* ---------------------------------------------------------------------------------------------------
