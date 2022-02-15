@@ -7,9 +7,8 @@
 #define DEBUG 0
 
 /* ------------ Project 2 - Problem 3 - Encryption ------------
-    This file encrypts a text file serially.
-    Most of the work is done for you.
-    Just find what in the program can be parallelized and how to encrypt a character.
+    This file encrypts a text file in parallel.
+    
     Don't forget to log the output time of your modified code!
 */ // ------------------------------------------------------ //
 
@@ -18,7 +17,7 @@ int main (int argc, char *argv[])
     //  Catch console errors
     //  Make sure you include the # of threads and your output time file.
     if (argc != 5) {
-        printf("USE LIKE THIS: encrypt_parallel key input_text.txt output_text.txt num_threads\n");
+        printf("USE LIKE THIS: encrypt_parallel key input_text.txt num_threads output_text.txt time.txt\n");
         return EXIT_FAILURE;
     }
 
@@ -33,7 +32,10 @@ int main (int argc, char *argv[])
     FILE* outputFile = fopen(argv[3], "w");
 
     // Get the number of threads
-    int thread_count = strtol(argv[4], NULL, 10);
+    int thread_count = strtol(argv[3], NULL, 10);
+
+    // Open the output file for writing the time
+    FILE* outputTime = fopen(argv[5], "w");
 
     // Allocate and open a buffer to read in the input
     fseek(inputFile, 0L, SEEK_END);
@@ -71,7 +73,7 @@ int main (int argc, char *argv[])
 
     // ----> Begin Encryption <----- //
     // Encrypt the buffer into the encrypted_buffer
-    // TODO: Distribute plaintext among threads
+    // Distribute plaintext among threads
 #   pragma omp parallel for num_threads(thread_count)
     for (int i = 0; i<lSize; i++) {
         encrypted_buffer[i] = (unsigned char)(buffer[i] + key);
@@ -88,7 +90,7 @@ int main (int argc, char *argv[])
     // Cleanup
     fclose(inputFile);
     fclose(outputFile);
-    // fclose(timeFile);
+    fclose(outputTime);
     free(encrypted_buffer);
     free(buffer);
 
