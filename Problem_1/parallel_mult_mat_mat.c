@@ -131,6 +131,11 @@ int main(int argc, char* argv[]) {
  * Reads in a CSV file given by the file pointer fp, and then 
  * reads in each cell of CSV into the corresponding matrix cell of
  * in_matrix
+ *
+ * Parameters:  fp is the file pointer to the input CSV file
+ *              in_matrix is the matrix pointer to write the CSV data to
+ *              width is the width (or number of columns) of the matrix
+ *              height is the height (or number of rows) of the matrix
  */
 void readCSVtoMatrix(FILE* fp, long int* in_matrix, int width, int height) {
     char* line_buffer = (char*)malloc(BUF_SIZE * sizeof(char));
@@ -162,7 +167,10 @@ void readCSVtoMatrix(FILE* fp, long int* in_matrix, int width, int height) {
 /**
  * Writes the given matrix, out_matrix, to the output file given by fp
  *
- * Parameters:  
+ * Parameters:  fp is the file pointer to the output CSV file to write the matrix to
+ *              out_matrix is the matrix that will be written to the CSV file
+ *              n_col is the number of columns the output matrix contains
+ *              n_row is the number of rows the output matrix contains
  */
 void writeMatrixtoCSV(FILE* fp, long int* out_matrix, int n_col, int n_row) {
     char* output_buffer = (char*)malloc(BUF_SIZE * sizeof(char));
